@@ -10,6 +10,7 @@ using LocationUtil;
 using System.Web;
 using System.Web.Http.Results;
 using System.Web.Http.Cors;
+using System.Net.Http.Formatting;
 
 namespace RestFullLocationApi.Controllers
 {
@@ -45,20 +46,47 @@ namespace RestFullLocationApi.Controllers
 
         // POST api/<controller>
         [HttpPost]
-        public void Post([FromBody]string value)
+        public string Post([FromBody] FormDataCollection location) // FormDataCollection
         {
-            Console.Write(value);
+            string strval = "";
+            try
+            {
+                // dynamic dynObj = Newtonsoft.Json.JsonConvert.DeserializeObject(location);
+
+                // int _locid, double _lat, double _long, String _bertitle, String _bertext, int _berichtid, int _klantid
+                this.locdao.update(new Location(
+                    int.Parse(location.GetValues("locid")[0]), // (int)dynObj.locid,
+                    double.Parse(location.GetValues("latitude")[0]), // (double)dynObj.lat,
+                    double.Parse(location.GetValues("longitude")[0]), // (double)dynObj.lon,
+                    location.GetValues("bertitel")[0], // dynObj.bertitle,
+                    location.GetValues("bertext")[0], //    dynObj.bertext,
+                    int.Parse(location.GetValues("berichtid")[0]), // (int)dynObj.berichtid,
+                    int.Parse(location.GetValues("klantid")[0]) //(int)dynObj.klantid
+                    ));
+
+                strval = location.GetValues("locid")[0].ToString() +
+                        location.GetValues("latitude")[0];
+                   
+
+            }
+            catch( Exception ee )
+            {
+                return ee.ToString();
+            }
+            
+            return strval + " Gelukt";
         }
 
         // PUT api/<controller>/5
         // [DisableCors]
         // https://localhost:44312
 
+        // TODO //
         [HttpPut]
         public void Put(int id, [FromBody]string value)
         {
             // int _locid, double _lat, double _long, String _bertitle, String _bertext, int _berichtid
-            this.locdao.save(new Location(0, 52.1, 4.8, "bla titel", "bla_text dus", 0, id));
+            this.locdao.save(new Location(0, 52.1, 4.1, "bla titel", "bla_text dus", 0, id)); // INSERT
             Console.Write(value + id.ToString());
         }
 
