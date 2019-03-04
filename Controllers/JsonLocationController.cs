@@ -11,6 +11,7 @@ using System.Web;
 using System.Web.Http.Results;
 using System.Web.Http.Cors;
 using System.Net.Http.Formatting;
+using System.Globalization;
 
 namespace RestFullLocationApi.Controllers
 {
@@ -51,22 +52,18 @@ namespace RestFullLocationApi.Controllers
             string strval = "";
             try
             {
-                // dynamic dynObj = Newtonsoft.Json.JsonConvert.DeserializeObject(location);
-
                 // int _locid, double _lat, double _long, String _bertitle, String _bertext, int _berichtid, int _klantid
                 this.locdao.update(new Location(
-                    int.Parse(location.GetValues("locid")[0]), // (int)dynObj.locid,
-                    double.Parse(location.GetValues("latitude")[0]), // (double)dynObj.lat,
-                    double.Parse(location.GetValues("longitude")[0]), // (double)dynObj.lon,
-                    location.GetValues("bertitel")[0], // dynObj.bertitle,
-                    location.GetValues("bertext")[0], //    dynObj.bertext,
-                    int.Parse(location.GetValues("berichtid")[0]), // (int)dynObj.berichtid,
-                    int.Parse(location.GetValues("klantid")[0]) //(int)dynObj.klantid
+                    int.Parse(location.GetValues("locid")[0]),
+                    double.Parse(location.GetValues("latitude")[0], CultureInfo.InvariantCulture), 
+                    double.Parse(location.GetValues("longitude")[0], CultureInfo.InvariantCulture),
+                    location.GetValues("bertitel")[0],
+                    location.GetValues("bertext")[0],
+                    int.Parse(location.GetValues("berichtid")[0]),
+                    int.Parse(location.GetValues("klantid")[0])
                     ));
 
-                strval = location.GetValues("locid")[0].ToString() +
-                        location.GetValues("latitude")[0];
-                   
+                strval = location.GetValues("locid")[0] + " Lat " + location.GetValues("latitude")[0];
 
             }
             catch( Exception ee )
@@ -81,18 +78,82 @@ namespace RestFullLocationApi.Controllers
         // [DisableCors]
         // https://localhost:44312
 
-        // TODO //
+        // Put is the insert function //
         [HttpPut]
-        public void Put(int id, [FromBody]string value)
+        public string Put(int id, [FromBody] FormDataCollection location)
         {
-            // int _locid, double _lat, double _long, String _bertitle, String _bertext, int _berichtid
-            this.locdao.save(new Location(0, 52.1, 4.1, "bla titel", "bla_text dus", 0, id)); // INSERT
-            Console.Write(value + id.ToString());
+            string strVal = "";
+
+            try
+            {
+                // int _locid, double _lat, double _long, String _bertitle, String _bertext, int _berichtid, int _klantid
+                this.locdao.save(new Location(
+                    int.Parse(location.GetValues("locid")[0]),
+                    double.Parse(location.GetValues("latitude")[0], CultureInfo.InvariantCulture),
+                    double.Parse(location.GetValues("longitude")[0], CultureInfo.InvariantCulture),
+                    location.GetValues("bertitel")[0],
+                    location.GetValues("bertext")[0],
+                    int.Parse(location.GetValues("berichtid")[0]),
+                    id
+                    ));
+
+                strVal = location.GetValues("locid")[0] + " Lat " + location.GetValues("latitude")[0];
+
+
+            }
+            catch (Exception ee)
+            {
+                return ee.ToString();
+            }
+
+            return strVal + "Insert gelukt";
         }
 
         // DELETE api/<controller>/5
-        public void Delete(int id)
+        [HttpDelete]
+        public string Delete(int id, [FromBody] FormDataCollection location)
         {
+            string strVal = "";
+
+            try
+            {
+                // int _locid, double _lat, double _long, String _bertitle, String _bertext, int _berichtid, int _klantid
+                this.locdao.delete(new Location(
+                    int.Parse(location.GetValues("locid")[0]),
+                    double.Parse(location.GetValues("latitude")[0], CultureInfo.InvariantCulture),
+                    double.Parse(location.GetValues("longitude")[0], CultureInfo.InvariantCulture),
+                    location.GetValues("bertitel")[0],
+                    location.GetValues("bertext")[0],
+                    int.Parse(location.GetValues("berichtid")[0]),
+                    id
+                    ));
+
+                strVal = location.GetValues("locid")[0] + " BerichtId " + location.GetValues("berichtid")[0]
+                    + " KlantId " + id; 
+            }
+            catch (Exception ee)
+            {
+                return ee.ToString();
+            }
+
+            return strVal + "Delete gelukt....";
+        }
+
+        // String conversion to double // NOT IN USE !!!!
+        public double GetDouble(string value, double defaultValue)
+        {
+            double result;
+
+            // Try parsing in the current culture
+            if (!double.TryParse(value, System.Globalization.NumberStyles.Any, CultureInfo.CurrentCulture, out result) &&
+                // Then try in US english
+                !double.TryParse(value, System.Globalization.NumberStyles.Any, CultureInfo.GetCultureInfo("en-US"), out result) &&
+                // Then in neutral language
+                !double.TryParse(value, System.Globalization.NumberStyles.Any, CultureInfo.InvariantCulture, out result))
+            {
+                result = defaultValue;
+            }
+            return result;
         }
     }
 }
