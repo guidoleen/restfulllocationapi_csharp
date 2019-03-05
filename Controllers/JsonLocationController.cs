@@ -16,7 +16,7 @@ using System.Globalization;
 namespace RestFullLocationApi.Controllers
 {
     // [DisableCors]
-    [EnableCors(origins: "https://localhost:44312", headers: "*", methods: "*")]
+    [EnableCors(origins: "https://localhost:44312,http://localhost:58387", headers: "*", methods: "*")]
     [Route("api/location/{id}")]
     public class JsonLocationController : ApiController
     {
