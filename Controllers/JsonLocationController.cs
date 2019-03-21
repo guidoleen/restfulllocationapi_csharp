@@ -12,6 +12,7 @@ using System.Web.Http.Results;
 using System.Web.Http.Cors;
 using System.Net.Http.Formatting;
 using System.Globalization;
+using RestFullLocationApi.Model;
 
 namespace RestFullLocationApi.Controllers
 {
@@ -20,7 +21,19 @@ namespace RestFullLocationApi.Controllers
     [Route("api/location/{id}")]
     public class JsonLocationController : ApiController
     {
-        private LocationDAO locdao = new LocationDAO(System.AppDomain.CurrentDomain.BaseDirectory + "App_Data/", "world.db" + "; Version = 3;");
+        private String SESSIONUSRID = "userid";
+        private String SESSIONTOKEN = "sessiontoken";
+
+        private int userId = -1;
+
+        private static String strDir = System.AppDomain.CurrentDomain.BaseDirectory + "App_Data/";
+        private static String strDb = "world.db" + "; Version = 3;";
+
+        private LocationDAO locdao = new LocationDAO(strDir, strDb);
+        private SessionLocationDAO sessdao = new SessionLocationDAO(strDir, strDb);
+        private KlantDAO klantdao = new KlantDAO(strDir, strDb);
+
+        SessionApi sessApi = new SessionApi();
 
         // GET api/<controller>
         [HttpGet]
@@ -33,16 +46,29 @@ namespace RestFullLocationApi.Controllers
         [HttpGet]
         public JsonResult<String> Get(int id)
         {
-            // First get the location from db in an arraylist
-            ArrayList loclist = this.locdao.getLocations(id);
+            String returnVal = "{" + "" + "}";
+            Boolean validSession = false;
+            try
+            {
+                validSession = this.sessdao.isValidSession(new SessionLocation(id, "nq3gj4oqgisejg1ec4hk3b4v", "7oUhzgPv34IsyiBdUWORyNX2FDtlek/a8nrO8n6JdY4="));
+                if(validSession) 
+                {
+                    // First get the location from db in an arraylist
+                    ArrayList loclist = this.locdao.getLocations(id);
 
-            // Second do the json generator
-            IObjectJson jsonGen;
+                    // Second do the json generator
+                    IObjectJson jsonGen;
 
-            // OLD STUFF // String[] strJsonList = new string[loclist.Count];
-            jsonGen = (ObjectToJson)new ObjectToJson(loclist.ToArray());
-
-            return Json(jsonGen.setToJsonString());
+                    // OLD STUFF // String[] strJsonList = new string[loclist.Count];
+                    jsonGen = (ObjectToJson)new ObjectToJson(loclist.ToArray());
+                    return Json(jsonGen.setToJsonString());
+                }
+            }
+            catch(NullReferenceException ee)
+            {
+                return Json(returnVal);
+            }
+            return Json(returnVal);
         }
 
         // POST api/<controller>
@@ -154,6 +180,52 @@ namespace RestFullLocationApi.Controllers
                 result = defaultValue;
             }
             return result;
+        }
+
+        // Login Controller
+        [EnableCors(origins: "https://localhost:44312,http://localhost:58387", headers: "*", methods: "*")]
+        [Route("api/location/{id}/{loginYN}")]
+        [HttpPost]
+        public JsonResult<String> Post(int id, int loginYN, [FromBody] FormDataCollection sessionVar)
+        {
+            Boolean validKlant = false;
+            String strSessionId = "";
+            String strSessionToken = "";
+
+            if(loginYN == 0) // Logout is ok
+            {
+                this.sessApi.sessionClear();
+                strSessionId = this.sessApi.sessionGetId();
+                this.sessdao.deleteSession( new SessionLocation(id, "", "") );
+            }   
+            else // Login 
+            {
+                validKlant = klantdao.isValidKlant( new Klant(id, "",
+                                                    sessionVar.GetValues("pwd")[0],
+                                                    sessionVar.GetValues("email")[0])
+                                                    );
+
+                if (validKlant) // If klant is valid
+                {
+                    strSessionId = sessApi.sessionGetId();
+                    strSessionToken = Encrypt.EncryptString(strSessionId, ""); // Encrypt the sessionId for token
+
+                    this.sessApi.sessionAdd(this.SESSIONUSRID, id.ToString());
+                    this.sessApi.sessionAdd(this.SESSIONTOKEN, strSessionToken);
+
+                    // Save to the session
+                    try
+                    {
+                        this.sessdao.saveSession(new SessionLocation(id, strSessionId, strSessionToken)); // new SessionLocation(id, "Blala", "Blala"));
+                    }
+                    catch (Exception ee)
+                    {
+                        strSessionId = ee.ToString();
+                    }
+                }
+            }
+
+            return Json("{" + strSessionId + " " + strSessionToken + "}"); // Empty Json
         }
     }
 }
