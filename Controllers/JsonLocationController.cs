@@ -42,15 +42,19 @@ namespace RestFullLocationApi.Controllers
             return Json("{}"); // Empty Json
         }
 
-        // GET api/<controller>/5
-        [HttpGet]
-        public JsonResult<String> Get(int id)
+        // GET api/<controller>/5/1/1 => 1 and 1 have no meaning // DISPLAY CONTROLLER
+        [Route("api/location/{id}/{noid}/{noid2}")]
+        [HttpPost]
+        public JsonResult<String> Get(int id, [FromBody] FormDataCollection _session)
         {
             String returnVal = "{" + "" + "}";
             Boolean validSession = false;
             try
             {
-                validSession = this.sessdao.isValidSession(new SessionLocation(id, "nq3gj4oqgisejg1ec4hk3b4v", "7oUhzgPv34IsyiBdUWORyNX2FDtlek/a8nrO8n6JdY4="));
+                validSession = this.sessdao.isValidSession(new SessionLocation(id, 
+                                                            _session.GetValues("sessionid")[0],
+                                                            _session.GetValues("sessiontoken")[0])
+                                                           );
                 if(validSession) 
                 {
                     // First get the location from db in an arraylist
@@ -71,7 +75,7 @@ namespace RestFullLocationApi.Controllers
             return Json(returnVal);
         }
 
-        // POST api/<controller>
+        // POST api/<controller> // UPDATE CONTROLLER
         [HttpPost]
         public string Post([FromBody] FormDataCollection location) // FormDataCollection
         {
@@ -100,7 +104,7 @@ namespace RestFullLocationApi.Controllers
             return strval + " Gelukt";
         }
 
-        // PUT api/<controller>/5
+        // PUT api/<controller>/5 // INSERT CONTROLLER
         // [DisableCors]
         // https://localhost:44312
 
@@ -135,7 +139,7 @@ namespace RestFullLocationApi.Controllers
             return strVal + "Insert gelukt";
         }
 
-        // DELETE api/<controller>/5
+        // DELETE api/<controller>/5 // DELETE CONTROLLER
         [HttpDelete]
         public string Delete(int id, [FromBody] FormDataCollection location)
         {
@@ -182,13 +186,13 @@ namespace RestFullLocationApi.Controllers
             return result;
         }
 
-        // Login Controller
+        // LOGIN CONTROLLER
         [EnableCors(origins: "https://localhost:44312,http://localhost:58387", headers: "*", methods: "*")]
         [Route("api/location/{id}/{loginYN}")]
         [HttpPost]
         public JsonResult<String> Post(int id, int loginYN, [FromBody] FormDataCollection sessionVar)
         {
-            Boolean validKlant = false;
+            int validKlant = 0;
             String strSessionId = "";
             String strSessionToken = "";
 
@@ -200,23 +204,24 @@ namespace RestFullLocationApi.Controllers
             }   
             else // Login 
             {
-                validKlant = klantdao.isValidKlant( new Klant(id, "",
+                // Id is not possible
+                validKlant = klantdao.isValidKlant( new Klant(0, "",
                                                     sessionVar.GetValues("pwd")[0],
                                                     sessionVar.GetValues("email")[0])
                                                     );
 
-                if (validKlant) // If klant is valid
+                if (validKlant != 0 ) // If klant is valid
                 {
                     strSessionId = sessApi.sessionGetId();
                     strSessionToken = Encrypt.EncryptString(strSessionId, ""); // Encrypt the sessionId for token
 
-                    this.sessApi.sessionAdd(this.SESSIONUSRID, id.ToString());
-                    this.sessApi.sessionAdd(this.SESSIONTOKEN, strSessionToken);
+                    //this.sessApi.sessionAdd(this.SESSIONUSRID, id.ToString());
+                    //this.sessApi.sessionAdd(this.SESSIONTOKEN, strSessionToken);
 
                     // Save to the session
                     try
                     {
-                        this.sessdao.saveSession(new SessionLocation(id, strSessionId, strSessionToken)); // new SessionLocation(id, "Blala", "Blala"));
+                        this.sessdao.saveSession(new SessionLocation(validKlant, strSessionId, strSessionToken)); // new SessionLocation(id, "Blala", "Blala"));
                     }
                     catch (Exception ee)
                     {
@@ -224,8 +229,8 @@ namespace RestFullLocationApi.Controllers
                     }
                 }
             }
-
-            return Json("{" + strSessionId + " " + strSessionToken + "}"); // Empty Json
+            
+            return Json("[{ \"klantid\" :\" " + validKlant + "\" , \"sessionid\" :\" " + strSessionId + "\" , \"sessiontoken\": \"" + strSessionToken + "\"}]"); // Empty Json
         }
     }
 }
