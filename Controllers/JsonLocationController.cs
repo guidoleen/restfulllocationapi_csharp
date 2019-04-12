@@ -45,7 +45,7 @@ namespace RestFullLocationApi.Controllers
         // GET api/<controller>/5/1/1 => 1 and 1 have no meaning // DISPLAY CONTROLLER
         [Route("api/location/{id}/{noid}/{noid2}")]
         [HttpPost]
-        public JsonResult<String> Get(int id, [FromBody] FormDataCollection _session)
+        public JsonResult<String> Post(int id, [FromBody] FormDataCollection _session)
         {
             String returnVal = "{" + "" + "}";
             Boolean validSession = false;
@@ -205,13 +205,35 @@ namespace RestFullLocationApi.Controllers
             else // Login 
             {
                 // Id is not possible
-                validKlant = klantdao.isValidKlant( new Klant(0, "",
+                try
+                {
+                    validKlant = klantdao.isValidKlant(new Klant(0, "",
                                                     sessionVar.GetValues("pwd")[0],
                                                     sessionVar.GetValues("email")[0])
                                                     );
+                }
+                catch(NullReferenceException ee)
+                {
+                    validKlant = 0;
+                }
 
                 if (validKlant != 0 ) // If klant is valid
                 {
+                    // First delete old session vars from klant...
+                    try
+                    {
+                        this.sessdao.deleteSession(new SessionLocation(
+                                validKlant,
+                                "",
+                                ""
+                            ));
+                    }
+                    catch(Exception ee)
+                    {
+
+                    }
+
+                    // Create new session...
                     strSessionId = sessApi.sessionGetId();
                     strSessionToken = Encrypt.EncryptString(strSessionId, ""); // Encrypt the sessionId for token
 

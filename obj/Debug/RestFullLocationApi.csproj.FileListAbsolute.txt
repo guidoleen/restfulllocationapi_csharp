@@ -1,3 +1,4 @@
+C:\Users\guido_leen\source\repos\RestFullLocationApi\RestFullLocationApi\obj\Debug\RestFullLocationApi.csproj.CoreCompileInputs.cache
 C:\Users\guido_leen\source\repos\RestFullLocationApi\RestFullLocationApi\bin\RestFullLocationApi.dll.config
 C:\Users\guido_leen\source\repos\RestFullLocationApi\RestFullLocationApi\bin\RestFullLocationApi.dll
 C:\Users\guido_leen\source\repos\RestFullLocationApi\RestFullLocationApi\bin\RestFullLocationApi.pdb
@@ -192,8 +193,7 @@ C:\Users\guido_leen\source\repos\RestFullLocationApi\RestFullLocationApi\bin\Ant
 C:\Users\guido_leen\source\repos\RestFullLocationApi\RestFullLocationApi\bin\System.Diagnostics.DiagnosticSource.xml
 C:\Users\guido_leen\source\repos\RestFullLocationApi\RestFullLocationApi\bin\Microsoft.AspNet.TelemetryCorrelation.xml
 C:\Users\guido_leen\source\repos\RestFullLocationApi\RestFullLocationApi\bin\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.xml
-C:\Users\guido_leen\source\repos\RestFullLocationApi\RestFullLocationApi\obj\Debug\RestFullLocationApi.csprojAssemblyReference.cache
-C:\Users\guido_leen\source\repos\RestFullLocationApi\RestFullLocationApi\obj\Debug\RestFullLocationApi.csproj.CoreCompileInputs.cache
 C:\Users\guido_leen\source\repos\RestFullLocationApi\RestFullLocationApi\obj\Debug\RestFullLocationApi.csproj.CopyComplete
 C:\Users\guido_leen\source\repos\RestFullLocationApi\RestFullLocationApi\obj\Debug\RestFullLocationApi.dll
 C:\Users\guido_leen\source\repos\RestFullLocationApi\RestFullLocationApi\obj\Debug\RestFullLocationApi.pdb
+C:\Users\guido_leen\source\repos\RestFullLocationApi\RestFullLocationApi\obj\Debug\RestFullLocationApi.csprojAssemblyReference.cache
