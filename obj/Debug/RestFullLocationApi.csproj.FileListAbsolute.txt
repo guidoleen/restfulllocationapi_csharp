@@ -196,3 +196,4 @@ C:\Users\guido_leen\source\repos\RestFullLocationApi\RestFullLocationApi\obj\Deb
 C:\Users\guido_leen\source\repos\RestFullLocationApi\RestFullLocationApi\obj\Debug\RestFullLocationApi.csproj.CopyComplete
 C:\Users\guido_leen\source\repos\RestFullLocationApi\RestFullLocationApi\obj\Debug\RestFullLocationApi.dll
 C:\Users\guido_leen\source\repos\RestFullLocationApi\RestFullLocationApi\obj\Debug\RestFullLocationApi.pdb
+C:\Users\guido_leen\source\repos\RestFullLocationApi\RestFullLocationApi\obj\Debug\RestFullLocationApi.csprojAssemblyReference.cache

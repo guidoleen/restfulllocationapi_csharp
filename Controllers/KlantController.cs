@@ -19,6 +19,7 @@ namespace RestFullLocationApi.Controllers
         private static String strDb = "world.db" + "; Version = 3;";
 
         private IDAOKlant klantDao = new KlantDAO(strDir, strDb);
+        private LocationUtils locUtil = new LocationUtils();
 
         // INSERT KLANT
         [Route("api/klant")]
@@ -27,13 +28,22 @@ namespace RestFullLocationApi.Controllers
         {
             String succesMessage = "Insert gelukt";
             String strInsertM = "";
+
+            String naam = _klantVars.GetValues("naam")[0];
+            String pwd = _klantVars.GetValues("pwd")[0];
+            String email = _klantVars.GetValues("email")[0];
+
+            // Check if values are empty...
+            if( locUtil.isEmpty(naam) && locUtil.isEmpty(pwd) && locUtil.isEmpty(email) )
+                return Json("[{ \"message\" :\" " + "empty values" + "\"}]");
+
             try
             {
                 strInsertM = this.klantDao.insert(new Klant(
                             0,
-                            _klantVars.GetValues("naam")[0],
-                            _klantVars.GetValues("pwd")[0],
-                            _klantVars.GetValues("email")[0]
+                            naam,
+                            pwd,
+                            email
                             ),
                             succesMessage
                             );
@@ -46,6 +56,7 @@ namespace RestFullLocationApi.Controllers
             return Json("[{ \"message\" :\" " + strInsertM + "\"}]"); // Empty Json
             
         }
+
     }
 }
 
